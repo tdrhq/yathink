@@ -6,6 +6,7 @@
 
 /* the fan controller file */
 static const char* fan_file = "/proc/acpi/ibm/fan";
+static const int watchdog_timeout = 10;
 
 static int
 fan_run_raw (const char* cmd)
@@ -16,6 +17,14 @@ fan_run_raw (const char* cmd)
 	fflush (f);
 	fclose (f);
 	return 1;
+}
+
+static void
+fan_set_watchdog ()
+{
+	char cmd[20];
+	sprintf (cmd, "watchdog %d", watchdog_timeout);
+	fan_run_raw (cmd);
 }
 
 int fan_is_supported ()
@@ -36,6 +45,7 @@ void fan_set_level (int level)
 
 	sprintf (cmd, "level %d", level);
 	fan_run_raw (cmd);
+	fan_set_watchdog ();
 }
 
 #ifdef SELF_TEST
